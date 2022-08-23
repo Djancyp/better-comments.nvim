@@ -95,7 +95,7 @@ M.Setup = function(config)
             Create_hl(opts.tags)
 
             for id, comment in ipairs(comments) do
-                for _, hl in ipairs(opts.tags) do
+                for id, hl in ipairs(opts.tags) do
                     if string.find(comment.text, hl.name) then
                         if hl.virtual_text ~= "" then
                             local ns_id = vim.api.nvim_create_namespace(hl.name)
@@ -108,7 +108,8 @@ M.Setup = function(config)
                             api.nvim_buf_set_extmark(current_buffer, ns_id, comment.line, comment.line, v_opts)
                         end
 
-                        vim.api.nvim_buf_add_highlight(current_buffer, 0, hl.name, comment.line, comment.col_start,
+                        vim.api.nvim_buf_add_highlight(current_buffer, 0, tostring(id), comment.line,
+                            comment.col_start,
                             comment.finish)
                     end
                 end
@@ -125,8 +126,8 @@ Get_root = function(bufnr, filetype)
 end
 
 function Create_hl(list)
-    for _, hl in ipairs(list) do
-        vim.api.nvim_set_hl(0, hl.name, {
+    for id, hl in ipairs(list) do
+        vim.api.nvim_set_hl(0, tostring(id), {
             fg = hl.fg,
             bg = hl.bg,
             bold = hl.bold,

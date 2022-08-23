@@ -31,7 +31,7 @@ local opts = {
             fg = "#f44747",
             bg = "",
             bold = true,
-            virtual_text = "",
+            virtual_text = "",
         }
 
     },

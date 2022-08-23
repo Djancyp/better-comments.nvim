@@ -35,27 +35,6 @@ local opts = {
         }
 
     },
-    exclude_filetypes = {
-        'help',
-        'startify',
-        'dashboard',
-        'packer',
-        'neogitstatus',
-        'NvimTree',
-        'Trouble',
-        'alpha',
-        'lir',
-        'Outline',
-        'spectre_panel',
-        'toggleterm',
-        'telescope',
-        'neo-tree',
-        'qf',
-        'md',
-        'yml',
-        'vimwiki'
-    }
-
 }
 
 
@@ -72,11 +51,15 @@ M.Setup = function(config)
                 return
             end
             local fileType = api.nvim_buf_get_option(current_buffer, "filetype")
-            if vim.tbl_contains(opts.exclude_filetypes, fileType) then
+            local success, parsed_query = pcall(function()
+                return treesitter.parse_query(fileType, [[(comment) @all]])
+            end)
+            if not success then
                 return
             end
             local commentsTree = treesitter.parse_query(fileType, [[(comment) @all]])
 
+            -- FIX: Check if file has treesitter
             local root = Get_root(current_buffer, fileType)
             local comments = {}
             for _, node in commentsTree:iter_captures(root, current_buffer, 0, -1) do
@@ -95,7 +78,7 @@ M.Setup = function(config)
             Create_hl(opts.tags)
 
             for id, comment in ipairs(comments) do
-                for id, hl in ipairs(opts.tags) do
+                for hl_id, hl in ipairs(opts.tags) do
                     if string.find(comment.text, hl.name) then
                         if hl.virtual_text ~= "" then
                             local ns_id = vim.api.nvim_create_namespace(hl.name)
@@ -108,7 +91,7 @@ M.Setup = function(config)
                             api.nvim_buf_set_extmark(current_buffer, ns_id, comment.line, comment.line, v_opts)
                         end
 
-                        vim.api.nvim_buf_add_highlight(current_buffer, 0, tostring(id), comment.line,
+                        vim.api.nvim_buf_add_highlight(current_buffer, 0, tostring(hl_id), comment.line,
                             comment.col_start,
                             comment.finish)
                     end

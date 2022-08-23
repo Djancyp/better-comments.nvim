@@ -43,7 +43,9 @@ M.Setup = function(config)
         opts.tags = vim.tbl_deep_extend("force", opts.tags, config.tags or {})
     end
 
+    local augroup = vim.api.nvim_create_augroup("better-comments", {clear = true})
     cmd({ 'BufWinEnter', 'BufFilePost', 'BufWritePost' }, {
+        group = augroup,
         callback = function()
             local current_buffer = api.nvim_get_current_buf()
             local current_buffer_name = api.nvim_buf_get_name(current_buffer)

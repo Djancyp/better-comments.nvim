@@ -2,7 +2,7 @@
 Better comments helps you to organize your comments with highlights and virtual text.
 
 # DEMO
-![Demo](/images/.example.png)
+![Demo](/images/example.png)
 ## Installation
 ### Requirement
 in order to use this plugin you need to set up treesiter

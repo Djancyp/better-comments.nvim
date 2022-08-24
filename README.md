@@ -2,7 +2,7 @@
 Better comments helps you to organize your comments with highlights and virtual text.
 
 # DEMO
-![Demo](/images/example.png)
+![Demo](https://github.com/Djancyp/nvim-plugin-demo/blob/main/better-comment.nvim/images/example.png)
 ## Installation
 ### Requirement
 in order to use this plugin you need to set up treesiter

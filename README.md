@@ -12,7 +12,7 @@ in order to use this plugin you need to set up treesiter
 Recommended Packer:
 
 ```lua
-use "Djancyp/better-comment.nvim"
+use "Djancyp/better-comments.nvim"
 ```
 ### Setup
 ```lua

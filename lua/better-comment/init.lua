@@ -54,12 +54,12 @@ M.Setup = function(config)
             end
             local fileType = api.nvim_buf_get_option(current_buffer, "filetype")
             local success, parsed_query = pcall(function()
-                return treesitter.parse_query(fileType, [[(comment) @all]])
+                return treesitter.query.parse(fileType, [[(comment) @all]])
             end)
             if not success then
                 return
             end
-            local commentsTree = treesitter.parse_query(fileType, [[(comment) @all]])
+            local commentsTree = treesitter.query.parse(fileType, [[(comment) @all]])
 
             -- FIX: Check if file has treesitter
             local root = Get_root(current_buffer, fileType)

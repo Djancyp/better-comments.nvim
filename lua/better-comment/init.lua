@@ -45,7 +45,7 @@ M.Setup = function(config)
     end
 
     local augroup = vim.api.nvim_create_augroup("better-comments", {clear = true})
-    cmd({ 'BufWinEnter', 'BufFilePost', 'BufWritePost' }, {
+    cmd({ 'BufWinEnter', 'BufFilePost', 'BufWritePost', 'TextChanged', 'TextChangedI'  }, {
         group = augroup,
         callback = function()
             local current_buffer = api.nvim_get_current_buf()

@@ -38,7 +38,7 @@ local opts = {
 }
 
 
-M.Setup = function(config)
+M.setup = function(config)
     if config and config.tags then
         opts.tags = vim.tbl_deep_extend("force", opts.tags, config.tags or {})
     end

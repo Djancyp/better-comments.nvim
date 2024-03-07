@@ -15,8 +15,22 @@ Recommended Packer:
 use "Djancyp/better-comments.nvim"
 ```
 ### Setup
+#### Packer
 ```lua
-require('better-comment').Setup()
+require('better-comments').setup()
+```
+#### Lazy
+```lua
+return {
+	"Djancyp/better-comments.nvim",
+	event = { "BufReadPre", "BufNewFile" },
+	dependencies = {
+		"nvim-treesitter/nvim-treesitter"
+	},
+	config = function()
+		require("better-comments").setup({})
+	end
+}
 ```
 
 ## Configs
@@ -56,7 +70,7 @@ tags = {
 ```
 ### Overwrite defaults or add new Config
 ```lua
-require('better-comment').Setup({
+require('better-comments').setup({
 tags = {
        // TODO will overwrite
         {

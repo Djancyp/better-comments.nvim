@@ -1,3 +1,7 @@
+-- TODO: don't having to resave to remove extmark
+-- TODO: see the others TODO
+
+
 local M = {}
 
 local api = vim.api
@@ -10,28 +14,22 @@ local opts = {
             fg = "white",
             bg = "#0a7aca",
             bold = true,
-            virtual_text = "",
         },
         {
             name = "FIX",
             fg = "white",
             bg = "#f44747",
             bold = true,
-            virtual_text = "",
         },
         {
             name = "WARNING",
             fg = "#FFA500",
-            bg = "",
             bold = false,
-            virtual_text = "",
         },
         {
             name = "!",
             fg = "#f44747",
-            bg = "",
             bold = true,
-            virtual_text = "",
         }
 
     },
@@ -39,12 +37,15 @@ local opts = {
 
 
 M.Setup = function(config)
+    if config and config.default==false then
+        opts.tags = {}
+    end
     if config and config.tags then
         opts.tags = vim.tbl_deep_extend("force", opts.tags, config.tags or {})
     end
 
     local augroup = vim.api.nvim_create_augroup("better-comments", {clear = true})
-    cmd({ 'BufWinEnter', 'BufFilePost', 'BufWritePost' }, {
+    cmd({ 'BufWinEnter', 'BufFilePost', 'BufWritePost', 'TextChanged', 'TextChangedI'  }, {
         group = augroup,
         callback = function()
             local current_buffer = api.nvim_get_current_buf()
@@ -82,24 +83,37 @@ M.Setup = function(config)
             for id, comment in ipairs(comments) do
                 for hl_id, hl in ipairs(opts.tags) do
                     if string.find(comment.text, hl.name) then
-                        if hl.virtual_text ~= "" then
-                            local ns_id = vim.api.nvim_create_namespace(hl.name)
+                        local ns_id = vim.api.nvim_create_namespace(hl.name)
+                        if hl.virtual_text and hl.virtual_text ~= "" then
                             local v_opts = {
                                 id = id,
                                 virt_text = { { hl.virtual_text, "" } },
                                 virt_text_pos = 'overlay',
                                 virt_text_win_col = comment.finish + 2,
                             }
-                            api.nvim_buf_set_extmark(current_buffer, ns_id, comment.line, comment.line, v_opts)
-                        end
 
-                        vim.api.nvim_buf_add_highlight(current_buffer, 0, tostring(hl_id), comment.line,
+                            -- FIX: comment.line -> 0 in col
+                            api.nvim_buf_set_extmark(current_buffer, ns_id, comment.line, 0, v_opts)
+                        end
+                        
+                        -- FIX: using for ns_id ns_id instead of 0 
+                        -- so that when we clear the namespace the color also clear
+                        vim.api.nvim_buf_add_highlight(current_buffer, ns_id, tostring(hl_id), comment.line,
                             comment.col_start,
                             comment.finish)
+                    else
+                        -- FIX: added else to delted extmark
+                        
+                        -- TODO: THIS PART IS CALLED A LOT FIND A WAY TO NOT CHECK EVERY TIME
+                        if hl.virtual_text ~= "" then
+                            local ns_id = vim.api.nvim_create_namespace(hl.name)
+                            
+                            -- FIX: clearing the namespace to delete the extmark and the color 
+                            api.nvim_buf_clear_namespace(current_buffer, ns_id, comment.line, comment.line+1)
+                        end
                     end
                 end
             end
-
         end
     })
 end
@@ -116,6 +130,7 @@ function Create_hl(list)
             fg = hl.fg,
             bg = hl.bg,
             bold = hl.bold,
+            underline = hl.underline,
         })
     end
 end

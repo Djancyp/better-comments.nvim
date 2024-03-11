@@ -66,7 +66,7 @@ local function Create_hl(list)
 end
 
 ---@param config? BetterCommentsConfig
-function M.Setup(config)
+function M.setup(config)
     config = config or {}
     if config.default==false then
         opts.tags = {}
@@ -146,5 +146,6 @@ function M.Setup(config)
         end
     })
 end
+M.Setup = M.setup -- Preserve backwards compatability!
 
 return M

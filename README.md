@@ -16,7 +16,7 @@ use "Djancyp/better-comments.nvim"
 ```
 ### Setup
 ```lua
-require('better-comment').Setup()
+require('better-comment').setup()
 ```
 
 ## Configs
@@ -56,7 +56,7 @@ tags = {
 ```
 ### Overwrite defaults or add new Config
 ```lua
-require('better-comment').Setup({
+require('better-comment').setup({
 tags = {
        // TODO will overwrite
         {

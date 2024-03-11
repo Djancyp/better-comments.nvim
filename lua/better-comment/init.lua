@@ -11,9 +11,8 @@
 
 local M = {}
 
-local api = vim.api
-local cmd = vim.api.nvim_create_autocmd
-local treesitter = vim.treesitter
+local api, treesitter = vim.api, vim.treesitter
+local au = api.nvim_create_autocmd
 ---@class BetterCommentsConfig
 local opts = {
     default = true,
@@ -49,7 +48,7 @@ local opts = {
 ---@param bufnr integer
 ---@param filetype string
 local function Get_root(bufnr, filetype)
-    local parser = vim.treesitter.get_parser(bufnr, filetype, {})
+    local parser = treesitter.get_parser(bufnr, filetype, {})
     local tree = parser:parse()[1]
     return tree:root()
 end
@@ -57,7 +56,7 @@ end
 ---@param list CommentHighlight[]
 local function Create_hl(list)
     for id, hl in ipairs(list) do
-        vim.api.nvim_set_hl(0, tostring(id), {
+        api.nvim_set_hl(0, tostring(id), {
             fg = hl.fg,
             bg = hl.bg,
             bold = hl.bold,
@@ -76,8 +75,8 @@ function M.Setup(config)
         opts.tags = vim.tbl_deep_extend("force", opts.tags, config.tags or {})
     end
 
-    local augroup = vim.api.nvim_create_augroup("better-comments", {clear = true})
-    cmd({ 'BufWinEnter', 'BufFilePost', 'BufWritePost', 'TextChanged', 'TextChangedI'  }, {
+    local augroup = api.nvim_create_augroup("better-comments", {clear = true})
+    au({ 'BufWinEnter', 'BufFilePost', 'BufWritePost', 'TextChanged', 'TextChangedI'  }, {
         group = augroup,
         callback = function()
             local current_buffer = api.nvim_get_current_buf()
@@ -85,10 +84,8 @@ function M.Setup(config)
             if current_buffer_name == '' then
                 return
             end
-            local fileType = api.nvim_buf_get_option(current_buffer, "filetype")
-            local success, parsed_query = pcall(function()
-                return treesitter.query.parse(fileType, [[(comment) @all]])
-            end)
+            local fileType = vim.bo[current_buffer].filetype
+            local success = pcall(treesitter.query.parse, fileType, [[(comment) @all]])
             if not success then
                 return
             end
@@ -103,7 +100,7 @@ function M.Setup(config)
                     line = range[1],
                     col_start = range[2],
                     finish = range[4],
-                    text = vim.treesitter.get_node_text(node, current_buffer)
+                    text = treesitter.get_node_text(node, current_buffer)
                 })
             end
 
@@ -115,7 +112,7 @@ function M.Setup(config)
             for id, comment in ipairs(comments) do
                 for hl_id, hl in ipairs(opts.tags) do
                     if string.find(comment.text, hl.name) then
-                        local ns_id = vim.api.nvim_create_namespace(hl.name)
+                        local ns_id = api.nvim_create_namespace(hl.name)
                         if hl.virtual_text and hl.virtual_text ~= "" then
                             local v_opts = {
                                 id = id,
@@ -127,19 +124,19 @@ function M.Setup(config)
                             -- FIX: comment.line -> 0 in col
                             api.nvim_buf_set_extmark(current_buffer, ns_id, comment.line, 0, v_opts)
                         end
-                        
+
                         -- FIX: using for ns_id ns_id instead of 0 
                         -- so that when we clear the namespace the color also clear
-                        vim.api.nvim_buf_add_highlight(current_buffer, ns_id, tostring(hl_id), comment.line,
+                        api.nvim_buf_add_highlight(current_buffer, ns_id, tostring(hl_id), comment.line,
                             comment.col_start,
                             comment.finish)
                     else
                         -- FIX: added else to delted extmark
-                        
+
                         -- TODO: THIS PART IS CALLED A LOT FIND A WAY TO NOT CHECK EVERY TIME
                         if hl.virtual_text ~= "" then
-                            local ns_id = vim.api.nvim_create_namespace(hl.name)
-                            
+                            local ns_id = api.nvim_create_namespace(hl.name)
+
                             -- FIX: clearing the namespace to delete the extmark and the color 
                             api.nvim_buf_clear_namespace(current_buffer, ns_id, comment.line, comment.line+1)
                         end

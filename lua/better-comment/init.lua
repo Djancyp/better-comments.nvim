@@ -1,13 +1,23 @@
 -- TODO: don't having to resave to remove extmark
 -- TODO: see the others TODO
 
+---@class (exact) CommentHighlight
+---@field name string
+---@field fg string?
+---@field bg string?
+---@field bold boolean?
+---@field underline boolean?
+---@field virtual_text string?
 
 local M = {}
 
 local api = vim.api
 local cmd = vim.api.nvim_create_autocmd
 local treesitter = vim.treesitter
+---@class BetterCommentsConfig
 local opts = {
+    default = true,
+    ---@type CommentHighlight[]
     tags = {
         {
             name = "TODO",
@@ -36,11 +46,33 @@ local opts = {
 }
 
 
-M.Setup = function(config)
-    if config and config.default==false then
+---@param bufnr integer
+---@param filetype string
+local function Get_root(bufnr, filetype)
+    local parser = vim.treesitter.get_parser(bufnr, filetype, {})
+    local tree = parser:parse()[1]
+    return tree:root()
+end
+
+---@param list CommentHighlight[]
+local function Create_hl(list)
+    for id, hl in ipairs(list) do
+        vim.api.nvim_set_hl(0, tostring(id), {
+            fg = hl.fg,
+            bg = hl.bg,
+            bold = hl.bold,
+            underline = hl.underline,
+        })
+    end
+end
+
+---@param config? BetterCommentsConfig
+function M.Setup(config)
+    config = config or {}
+    if config.default==false then
         opts.tags = {}
     end
-    if config and config.tags then
+    if config.tags then
         opts.tags = vim.tbl_deep_extend("force", opts.tags, config.tags or {})
     end
 
@@ -116,23 +148,6 @@ M.Setup = function(config)
             end
         end
     })
-end
-
-Get_root = function(bufnr, filetype)
-    local parser = vim.treesitter.get_parser(bufnr, filetype, {})
-    local tree = parser:parse()[1]
-    return tree:root()
-end
-
-function Create_hl(list)
-    for id, hl in ipairs(list) do
-        vim.api.nvim_set_hl(0, tostring(id), {
-            fg = hl.fg,
-            bg = hl.bg,
-            bold = hl.bold,
-            underline = hl.underline,
-        })
-    end
 end
 
 return M

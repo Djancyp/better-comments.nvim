@@ -9,14 +9,23 @@ in order to use this plugin you need to set up treesiter
 
 [nvim-treesitter/nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter)
 
-Recommended Packer:
+Packer:
 
 ```lua
 use "Djancyp/better-comments.nvim"
 ```
+
+Lazy.nvim:
+```lua
+return {
+  "Djancyp/better-comments.nvim",
+  opts = {}
+}
+```
+
 ### Setup
 ```lua
-require('better-comment').setup()
+require('better-comments').setup()
 ```
 
 ## Configs
@@ -56,7 +65,7 @@ tags = {
 ```
 ### Overwrite defaults or add new Config
 ```lua
-require('better-comment').setup({
+require('better-comments').setup({
 tags = {
        // TODO will overwrite
         {

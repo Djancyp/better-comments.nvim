@@ -9,10 +9,6 @@
 ---@field underline boolean?
 ---@field virtual_text string?
 
----These strings are passed to string.match!
----@alias BetterComments.tags CommentHighlight[]
-
-
 local M = {}
 
 local api = vim.api
